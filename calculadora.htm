@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
   <head>
-
+    <meta charset="utf-8" />
     <script type="text/javascript" src="./lib/joose.js"></script>
     <script type="text/javascript" src="./lib/jquery.js"></script>
     <script type="text/javascript" src="./lib/calculadora.js"></script>
-
   </head>
 
   <body>
@@ -60,24 +59,78 @@
           console.log( calc.raiz_quadrada(   calc.elevar( 2, 3 ).resultado ).resultado  );
         }
 
+        CALCULADORA_COM_RAIZ_QUADRADA_E_POTENCIA_E_REGISTRO_DE_OPERACOES: {
+          Class( "Calculadora", {
+            isa: CalculadoraBase,
+            does: [
+              RaizQuadrada,   //agora esta classe implementa as funcionalidades de raiz quadrada
+              Potencia,       //agora tambem implementa funcionaldiade de potencia
+              RegistraOperacoes,
+            ]
+          } )
+
+          var calc = new Calculadora();
+          console.log( calc.elevar( 2, 3 ).resultado );
+            calc.raiz_quadrada(
+              calc.elevar(
+                calc.adicionar( 1,1 ).resultado 
+                , 
+                calc.subtrair( 4, 1 ).resultado 
+              ).resultado 
+            ).resultado  
+          console.log( calc.operacoes );
+        }
+
         CALCULADORA_COM_VIEW: {
+          console.log( "calculadora com view" );
           Class("Calculadora", {
             isa: CalculadoraBase,
             does: [
               RaizQuadrada,
               Potencia,
+              RegistraOperacoes,
               CalculadoraView,
             ]
           } )
           //neste exemplo, vamos precisar adicionar uma tag no <body>. e o jquery será usado dentro da role CalculadoraView
-          //O CalculadoraView é que vai fazer a ponte para manipular o dom, sempre que um resultado for setado.
-          var div_calculadora = jQuery( "<div>" )
-                                  .attr( "id", "calculadora" ).html('x');
-          jQuery( "body" ).append( div_calculadora );
+          //O CalculadoraView é que vai fazer a ponte para manipular o dom, sempre que um resultado for setado. Ou seja, 
+          //eu vou usar um modificador de método que vai atuar em cima do método setResultado, que 
+          //é o método que seta o atributo resultado. que está na classe CalculadoraBase. Sempre que 
+          //esse método for executado, será atualizada a div#calculadora-resultado
+          var div_calculadora           = jQuery( "<div>" ).attr( "id", "calculadora-resultado" );
+          var div_operacoes_realizadas  = jQuery( "<ul>" ).attr( "id", "calculadora-operacoes-realizadas" );
+
+          jQuery( "body" )
+            .append( div_calculadora )
+            .append( div_operacoes_realizadas );
 
           var calc = new Calculadora( {
-              resultado : 2
+              elem_calculadora  : div_calculadora,
+              elem_operacoes    : div_operacoes_realizadas,
           } );
+
+          calc.adicionar( 1,1 );
+          calc.multiplicar( calc.resultado, 2 );
+          calc.raiz_quadrada( calc.resultado  );
+        }
+
+        EXEMPLO_DE_TYPES: {
+          var pessoa = new Pessoa();
+          pessoa.set_nome( "João" );
+          console.log( pessoa.nome );
+
+          
+          var pessoa2 = new Pessoa( {
+                   nome : 11,     //passei um numero aqui, automaticamente vai rolar um coerce e nome vai ficar igual a false
+              sobrenome : "Silva",
+                  idade : 50,
+                   peso : 91.2
+          } );
+
+          console.log( pessoa2.nome );
+          console.log( pessoa2.sobrenome );
+          console.log( pessoa2.idade );
+          console.log( pessoa2.peso );
         }
     </script>
 

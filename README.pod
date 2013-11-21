@@ -13,6 +13,8 @@ Joose é um sistema de meta objetos para javascript que suporta:
   traits
   modificadores de método
 
+E permite que você crie classes como se fosse LEGO, literalmente.
+
 =head2 DESCRIÇÃO
 
 Joose é um sistema de meta objetos para javascript.
@@ -42,21 +44,31 @@ ex:
       }
   } )
 
+=head3 Atributos
+
+=head3 Métodos
+
+=head3 Modificadores de métodos
+
 =head3 Classes
 
 =head3 Roles
 
+=head3 Requires
+
 =head3 Traits
 
 =head3 Types
+
+Type coercions have been proven to be extremely useful in JavaScript code because many tasks in JavaScript deal with user provided data that is in string form. Coercions provide a very convenient way to transform this string data into meaningful things. After the definition of the types your application code can basically "ignore" things like data validation and conversion. This makes the code more expressive and should reduce errors because it is harder to forget to validate data.
+
+REFENCIA: http://www.nonblocking.io/2009/01/type-contraints-and-type-coercions-in.html 
 
 =head3 Namespaces
 
 =head3 Singletons
 
 =head3 Prototypes
-
-=head3 Modificadores de métodos
 
 =head2 Exemplo prático
 
