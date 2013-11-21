@@ -1,0 +1,7 @@
+=encoding utf8
+
+=head1 NAME
+
+Tutorial Joose JS - em portugês
+
+=cut
