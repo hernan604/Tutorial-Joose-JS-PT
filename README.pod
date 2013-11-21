@@ -154,6 +154,16 @@ e o getter fica:
 
   pessoa.nome = "Mônica"
 
+Resumindo, para acessar os atributos de fora da classe:
+
+  pessoa.nome
+
+e para acessar de dentro da classe:
+
+  this.setNome( '...' );
+  this.getNome()
+  this.nome
+
 mas ao vc acessar/setar diretamente o atributo, vc perde a facilidade dos modificadors de método para getPessoa e setPessoa.
 
 =head3 Métodos
@@ -161,13 +171,52 @@ mas ao vc acessar/setar diretamente o atributo, vc perde a facilidade dos modifi
 Os métodos podem ser definidos tanto em Classes quanto em Roles. e ficam dentro do bloco methods:{ ... }, ex:
 
   Class( "Programador", {
-        isa : Pessoa,         //herda da classe Pessoa
+    isa : Pessoa,         //herda da classe Pessoa
+    has : {
+      is_hacker : { is: "rw", init: ( function() { true } )() }
+      linguagem : { is: "rw"  },
+    },
     methods : {               //bloco de métodos relacionado à classe Programador
-      programar: function () { 
+      programar: function () {
         console.log( "programando.... " );
+      },
+      hackear: function() {
+        if ( ! this.is_hacker ) return;
+        console.log( "hummmmm hacker :p" );
       }
     }
   } )
+
+A classe Programador acima, herda de pessoa, então ela tem todas as funcionalidades da classe pessoa.
+
+Alem disso, alguns métodos são definidos especificamente nesta classe, são eles:
+
+  programar
+  hackear
+
+Então eu poderia fazer isto por exemplo:
+
+  var dados = {
+         nome : "Linus Torvalds",
+    is_hacker : true,
+    linguagem : [ "c", "cpp" ]
+  }
+
+  var programador = new Programador( dados );
+
+  programador.programar() // programando...
+  programador.hackear()   // hummmmm hacker :p
+
+mas e se eu passar is_hacker = false
+
+  programador.setIs_hacker( false );
+  programador.hackear();  // vai fazer nada pois não é hacker
+
+para setar atributos dentro dos métodos é só fazer:
+
+  this.setNome("...")
+  this.getnome()
+  this.nome
 
 =head3 Modificadores de métodos
 
