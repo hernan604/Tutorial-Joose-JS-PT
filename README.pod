@@ -296,9 +296,59 @@ Outros modificadores de métodos mais poderosos são o Override e Around. Estes 
   console.log( pessoa.perguntar_frase( "Nome?" ) );
   console.log( pessoa.perguntar_frase( "Qual seu nome ?" ) );
 
+=head3 Diferença entre classes e roles
+
+A principal diferença entre classes e roles é que classes podem ser instanciadas e roles não. As roles podem ser consumidas por outras classes e outras roles.
+
+Pra falar bem grossamente, uma classe pode ser montada com várias roles. 
+
 =head3 Classes
 
+As classes podem ser instanciadas, ou seja, é possível fazer:
+
+  var pessoa = new Pessoa();
+
+como sempre, as classes podem ter atributos, metodos, modificadores de métodos. 
+
+Tambem podem ser construídas com outras roles, utilizando a diretiva 'does', por exemplo:
+
+Vou definir uma Role de Programador:
+
+  Role( "Programador", {
+    has: {
+      linguagens: { is: "rw" }
+    },
+    methods: {
+      programar: function() {
+        console.log('programando...')
+      }
+    }
+  } )
+
+E uma classe pessoa, que vai exercer tambem o papel de programador
+
+  Class( "Pessoa", {
+    does: [ Programador ],
+    has: {
+      nome: { is: "rw" }
+    },
+    methods: {
+      andar: function() {
+        console.log( "andar..." );
+      },
+      dizer_nome: function () {
+        console.log( this.nome );
+      }
+    }
+  } )
+
 =head3 Roles
+
+As roles não podem ser instanciadas, ou seja, não é possível fazer:
+
+  var role_programador = new Programador_Role(); // Se Programador_Role for uma role, isso vai dar pau.
+
+As roles são para ser utilizadas nas classes. Role em inglês quer dizer "papel", no sentido de atores por exemplo.. uma hora o ator exerce o papel de algo.
 
 =head3 Requires
 
