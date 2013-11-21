@@ -72,7 +72,7 @@ Como é feito normalmente em js:
 
 Não ha necessidade de ficar declarando setters e getters pois todo atributo tem um setter e um geter criado implicitamente. Você pode mudar o nome dos getters e setters. Especialmente se quiser usar um after ou before de setters ou getters.
 
-ex: 
+ex, primeiro vou criar e definir minha classe Pessoa: 
 
   Class( "Pessoa", {
       has: {
@@ -82,13 +82,16 @@ ex:
           amigos      : { is: 'rw', init: (function() { })( return [] ) }, // Array
       }
   } )
+
+Agora, vou instanciar a classe e setar alguns atributos manualmente
+
   var pessoa = new Pessoa();
   pessoa.setNome( "João" );
   pessoa.setSobrenome( "João" );
   pessoa.setIdade( "João" );
   pessoa.setAmigos( [ 'Maria','José' ] );
 
-ou melhor ainda... é permitiro passar o objeto e ele automagicamente seta para vc, ex:
+ou melhor ainda, vou instanciar a classe passando um objeto e a classe é automagicamente populada para vc, ex:
 
   var pessoa_item = {
           nome : "João",
@@ -100,12 +103,98 @@ ou melhor ainda... é permitiro passar o objeto e ele automagicamente seta para 
   var p = new Pessoa( pessoa_item );
   console.log( p.nome );      // João
   console.log( p.sobrenome ); // Silva
+  console.log( p.idade );     // 50
+  console.log( p.amigos );    // [ "José", "Maria" ]
+
+menos código, menos bugs. Mais clean.
 
 =head3 Atributos
 
+Todas as Classes e Roles podem ter atributos. Ao registrar um atributo para sua classe, um attribute accessor é criado para você.
+
+Os atributos ficam dentro do bloco has. 
+  
+  has: {
+      nome: { 
+          is: "rw"    //rw = readwrite. Ou seja, é permitido escrever nesse atributo
+      },
+      sexo: {
+                is : "ro"    //ro = readonly. Ou seja, não é permitido escrever nesse atributo
+          required : true,   //indica que o atributo é requerido
+      }
+  }
+
+Foi escolhido 'has' pois atributos são considerados membros de um objeto, ou seja, "um objeto has um atributo", ou "um objeto tem um atributo", ou "uma pessoa tem nome"
+
+Isso quer dizer que você só indica o nome do atributo e os getters e setters são criados behind-the-scenes.
+
+o padrão para os accessors é set junto com a primeira letra do atributo em maiúscula, ex:
+
+  Class( "Pessoa" , {
+    has: {
+      nome: { is: "rw" }
+    }
+  } )
+
+  var pessoa = new Pessoa();
+
+o setter fica:
+
+  pessoa.setNome( "valor" )
+
+e o getter fica:
+
+  pessoa.getNome()
+
+óbviamente que vc tambem pode fazer:
+
+  pessoa.nome
+
+  ou 
+
+  pessoa.nome = "Mônica"
+
+mas ao vc acessar/setar diretamente o atributo, vc perde a facilidade dos modificadors de método para getPessoa e setPessoa.
+
 =head3 Métodos
 
+Os métodos podem ser definidos tanto em Classes quanto em Roles. e ficam dentro do bloco methods:{ ... }, ex:
+
+  Class( "Programador", {
+        isa : Pessoa,         //herda da classe Pessoa
+    methods : {               //bloco de métodos relacionado à classe Programador
+      programar: function () { 
+        console.log( "programando.... " );
+      }
+    }
+  } )
+
 =head3 Modificadores de métodos
+
+Existem 3 modificadores de método:
+
+  before 
+  after
+  around
+
+=head4 before
+
+O before permite que seja executado algo antes da execução do método relacionado ao before.
+
+  Class( "Pessoa", {
+    has: {
+      nome: { is: "rw" }
+    },
+    before: {
+      setNome: function () { 
+        console.log( "Antes de executar this.setNome('...') " );
+      }
+    }
+  } )
+
+=head4 after
+
+O after permite executar algo após a execução do método.
 
 =head3 Classes
 
