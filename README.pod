@@ -220,11 +220,82 @@ para setar atributos dentro dos métodos é só fazer:
 
 =head3 Modificadores de métodos
 
-Existem 3 modificadores de método:
+Os modificadores de métodos tem muitos usos. Eles são bastante usados em Roles pois as roles extendem as classes e assim é possível pegar carona nos métodos sem necessariamente alterar os métodos da classe principal.
+
+Os modificadores de método recebem os mesmos atritos enviados para o método original.
+
+Existem 4 modificadores de método:
 
   before 
   after
+  override
   around
+
+Before e After rodam antes e depois dos métodos respectivamente e não permitem alterar o valor enviado e nem o valor retornado pelo método original. Um exemplo de uso seria registrar um 'log' da ação executada. ex:
+
+  Class( "Pessoa", {
+    has : {
+      nome : { is: "rw" }
+    },
+    before: { 
+      setNome: function( nome ) {
+        console.log( "LOG: Antes de setar atributo nome, com valor: " + nome );
+      }
+    },
+    after: {
+      setNome: function( nome ) { 
+        console.log( "LOG: Após setar atributo nome, com valor: " + nome );
+      }
+    }
+  } )
+
+Então se eu instanciar essa classe e setar um valor para o atributo nome, ela vai fazer o seguinte:
+
+  var pessoa = new Pessoa();
+  pessoa.setNome( "Joe" );
+
+  "Antes de setar atributo nome"<-- aparece antes da classe chamar o método setNome
+  "Após setar atributo nome"    <-- aparece após a classe setar um valor para o atributo nome
+
+Outros modificadores de métodos mais poderosos são o Override e Around. Estes podem modificar os argumentos passados originalmente para um método e você consegue até decidir se quer ou não chamar o método original. Também é possível modificar o valor retornado pelo método original, ex:
+
+  Class( "Pessoa", {
+
+    // Métodos 
+
+    methods: {
+      dizer_frase: function ( frase ) {
+        return "dizendo: " + frase ;
+      },
+      perguntar_frase: function( pergunta ) {
+        return "perguntando: " + pergunta;
+      },
+    },
+
+    // Meus overrides
+
+    override: {
+      dizer_frase: function( frase ) {
+        return this.SUPER( false ) + " - OVERRIDE";
+      }
+    },
+
+    //Meus arounds
+
+    around: {
+      perguntar_frase: function ( original, pergunta ) {
+        return ( pergunta && pergunta.length > 10 ) 
+          ? original( pergunta )        //chama o método original
+          : "pergunta muito curta";     //não chama método orignal e retorna este valor
+      }
+    },
+  } )
+
+  var pessoa = new Pessoa();
+  console.log( pessoa.dizer_frase( "Tambem sei falar!" ) );
+  console.log( pessoa.perguntar_frase( "Nome?" ) );
+  console.log( pessoa.perguntar_frase( "Qual seu nome ?" ) );
+
 
 =head4 before
 

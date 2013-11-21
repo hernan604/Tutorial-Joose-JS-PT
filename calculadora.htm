@@ -73,11 +73,11 @@
           console.log( calc.elevar( 2, 3 ).resultado );
             calc.raiz_quadrada(
               calc.elevar(
-                calc.adicionar( 1,1 ).resultado 
-                , 
-                calc.subtrair( 4, 1 ).resultado 
-              ).resultado 
-            ).resultado  
+                calc.adicionar( 1,1 ).resultado
+                ,
+                calc.subtrair( 4, 1 ).resultado
+              ).resultado
+            ).resultado
           console.log( calc.operacoes );
         }
 
@@ -93,9 +93,9 @@
             ]
           } )
           //neste exemplo, vamos precisar adicionar uma tag no <body>. e o jquery será usado dentro da role CalculadoraView
-          //O CalculadoraView é que vai fazer a ponte para manipular o dom, sempre que um resultado for setado. Ou seja, 
-          //eu vou usar um modificador de método que vai atuar em cima do método setResultado, que 
-          //é o método que seta o atributo resultado. que está na classe CalculadoraBase. Sempre que 
+          //O CalculadoraView é que vai fazer a ponte para manipular o dom, sempre que um resultado for setado. Ou seja,
+          //eu vou usar um modificador de método que vai atuar em cima do método setResultado, que
+          //é o método que seta o atributo resultado. que está na classe CalculadoraBase. Sempre que
           //esse método for executado, será atualizada a div#calculadora-resultado
           var div_calculadora           = jQuery( "<div>" ).attr( "id", "calculadora-resultado" );
           var div_operacoes_realizadas  = jQuery( "<ul>" ).attr( "id", "calculadora-operacoes-realizadas" );
@@ -120,7 +120,7 @@
           pessoa.setSobrenome( "da Silva" );
           console.log( pessoa.nome );
 
-          
+
           var pessoa2 = new Pessoa( {
                    nome : 11,     //passei um numero aqui, automaticamente vai rolar um coerce e nome vai ficar igual a false
               sobrenome : "Silva",
@@ -138,7 +138,7 @@
           console.log( "----exemplo de pessoas de diferentes tipos" );
 
           console.log( "  Programador:" );
-          PROGRAMADOR: { 
+          PROGRAMADOR: {
             Class( "PessoaProgramador", {
               isa: Pessoa,
               does: [ Programador ]
@@ -173,7 +173,7 @@
               isa: Pessoa,
               does: [ Mecanico ]
             } )
-            
+
             var mecanico = new PessoaMecanico( {
               nome        : "Joe",
               ferramenta  : "macaco"
@@ -182,7 +182,7 @@
           }
 
 
-          //Agora, os profissionais terão direito a descanço.. 
+          //Agora, os profissionais terão direito a descanço..
           //vou criar uma role descanço que vai botar um modificador de método 'after': programar, pilotar e consertar_carro
           //E vou criar uma classe para eles se prepararem pro trampo, que vai ficar no metodo 'before' programar, pilotar e consertar_carro
           console.log( "--- programador com roles: PreparoProgramador, DescancoProgramador " );
@@ -205,7 +205,7 @@
               isa: Pessoa,
               does: [ Mecanico, DescancoMecanico, PreparoMecanico ]
             } )
-            
+
             var mecanico = new PessoaMecanico( {
               nome        : "Joe",
               ferramenta  : "macaco"
@@ -232,6 +232,7 @@
 
 
         }
+
     </script>
 
   </body>
