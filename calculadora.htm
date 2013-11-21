@@ -116,7 +116,8 @@
 
         EXEMPLO_DE_TYPES: {
           var pessoa = new Pessoa();
-          pessoa.set_nome( "João" );
+          pessoa.setNome( "João" );
+          pessoa.setSobrenome( "da Silva" );
           console.log( pessoa.nome );
 
           
@@ -127,10 +128,109 @@
                    peso : 91.2
           } );
 
-          console.log( pessoa2.nome );
-          console.log( pessoa2.sobrenome );
-          console.log( pessoa2.idade );
-          console.log( pessoa2.peso );
+          console.log( pessoa2.nome );      //false
+          console.log( pessoa2.sobrenome ); //Silva
+          console.log( pessoa2.idade );     //50
+          console.log( pessoa2.peso );      //91.2 kg
+        }
+
+        EXEMPLO_DE_TIPOS_DE_PESSOA : {
+          console.log( "----exemplo de pessoas de diferentes tipos" );
+
+          console.log( "  Programador:" );
+          PROGRAMADOR: { 
+            Class( "PessoaProgramador", {
+              isa: Pessoa,
+              does: [ Programador ]
+            } )
+
+            var programador = new PessoaProgramador( {
+              nome        : "João",
+              linguagem   : "javascript"
+            } );
+            programador.programar();
+          }
+
+
+          console.log( "  Piloto:" );
+          PILOTO: {
+            Class( "PessoaPiloto",{
+              isa: Pessoa,
+              does: [ Piloto ]
+            } )
+
+            var piloto = new PessoaPiloto( {
+              nome      : "Ayrton",
+              sobrenome : "Senna",
+              carro     : "F1",
+            } );
+            piloto.pilotar();
+          }
+
+          console.log( "  Mecanico:" );
+          MECANICO: {
+            Class( "PessoaMecanico", {
+              isa: Pessoa,
+              does: [ Mecanico ]
+            } )
+            
+            var mecanico = new PessoaMecanico( {
+              nome        : "Joe",
+              ferramenta  : "macaco"
+            } );
+            mecanico.consertar_carro();
+          }
+
+
+          //Agora, os profissionais terão direito a descanço.. 
+          //vou criar uma role descanço que vai botar um modificador de método 'after': programar, pilotar e consertar_carro
+          //E vou criar uma classe para eles se prepararem pro trampo, que vai ficar no metodo 'before' programar, pilotar e consertar_carro
+          console.log( "--- programador com roles: PreparoProgramador, DescancoProgramador " );
+          PROGRAMADOR: {
+            Class( "PessoaProgramador", {
+              isa: Pessoa,
+              does: [ Programador, DescancoProgramador, PreparoProgramador ]
+            } )
+
+            var programador = new PessoaProgramador( {
+              nome        : "João",
+              linguagem   : "javascript"
+            } );
+            programador.programar();
+          }
+
+          console.log( "--- mecânico com roles: PreparoMecanico, DescancoMecanico " );
+          MECANICO: {
+            Class( "PessoaMecanico", {
+              isa: Pessoa,
+              does: [ Mecanico, DescancoMecanico, PreparoMecanico ]
+            } )
+            
+            var mecanico = new PessoaMecanico( {
+              nome        : "Joe",
+              ferramenta  : "macaco"
+            } );
+            mecanico.consertar_carro();
+          }
+
+          console.log( "--- piloto com roles: PreparoPiloto, DescancoPiloto " );
+          PILOTO: {
+            Class( "PessoaPiloto",{
+              isa: Pessoa,
+              does: [ Piloto, DescancoPiloto, PreparoPiloto ]
+            } )
+
+            var piloto = new PessoaPiloto( {
+              nome      : "Ayrton",
+              sobrenome : "Senna",
+              carro     : "F1",
+            } );
+            piloto.pilotar();
+          }
+
+
+
+
         }
     </script>
 

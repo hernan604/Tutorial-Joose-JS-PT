@@ -23,6 +23,8 @@ O joose facilita o trabalho com orientação a objeto no javascript. Fica mais f
 
 Importante, o joose não serve apenas para frontend. Tambem é muito usado no backend junto com nodejs. É importante entender que o joose não está atrelado a markup nem a views. No entando ele pode ser usado no frontend (browser) e usar jquery ou javascript puro para modificar o dom e etc. E o Angular, Dojo, ExtJS, etc por exemplo podem ser usadas em conjutno com o joose.
 
+O joose ajuda a trabalhar com classes, namespaces, heranças, roles, reduzir o número de linhas, reutilizar código e aumentar a produtividade.
+
 =head2 O que NÃO é Joose JS
 
 Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
@@ -30,6 +32,43 @@ Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
 Ele não trabalha no nível de markup. Mas pode ser usado em conjunto com jquery.
 
 =head3 Seters, getters
+
+Como é feito normalmente em js: 
+
+  pessoa = {
+    //nome
+    nome      : null,
+    setNome  : function ( val ) { 
+      this.nome = val;
+    },
+    getNome  : function () { 
+      return this.nome;
+    },
+
+    //sobrenome
+    sobrenome      : null,
+    setSobrenome  : function ( val ) { 
+      this.sobrenome = val;
+    },
+    getSobrenome  : function () { 
+      return this.sobrenome;
+    },
+
+    //idade
+    idade    : null,
+    setIdade  : function ( val ) {
+      this.idade = val;
+    },
+    getIdade  : function () { 
+      return this.idade;
+    },
+
+  };
+  pessoa.setNome("João");
+  pessoa.setSobrenome("Silva");
+  pessoa.setIdade(50);
+
+  pessoa.getNome();
 
 Não ha necessidade de ficar declarando setters e getters pois todo atributo tem um setter e um geter criado implicitamente. Você pode mudar o nome dos getters e setters. Especialmente se quiser usar um after ou before de setters ou getters.
 
@@ -43,6 +82,24 @@ ex:
           amigos      : { is: 'rw', init: (function() { })( return [] ) }, // Array
       }
   } )
+  var pessoa = new Pessoa();
+  pessoa.setNome( "João" );
+  pessoa.setSobrenome( "João" );
+  pessoa.setIdade( "João" );
+  pessoa.setAmigos( [ 'Maria','José' ] );
+
+ou melhor ainda... é permitiro passar o objeto e ele automagicamente seta para vc, ex:
+
+  var pessoa_item = {
+          nome : "João",
+     sobrenome : "Silva",
+         idade : 50,
+        amigos : [ "José", "Maria" ]
+  }
+
+  var p = new Pessoa( pessoa_item );
+  console.log( p.nome );      // João
+  console.log( p.sobrenome ); // Silva
 
 =head3 Atributos
 
