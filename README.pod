@@ -11,17 +11,36 @@ Joose é um sistema de meta objetos para javascript que suporta:
   classes
   herança
   traits
-  modificadores de método 
+  modificadores de método
 
 =head2 DESCRIÇÃO
 
-Joose é um sistema de meta objetos para javascript. 
+Joose é um sistema de meta objetos para javascript.
 
-O joose facilita o trabalho com orientação a objeto no javascript. Fica mais fácil, declarativo e aumenta a produtividade
+O joose facilita o trabalho com orientação a objeto no javascript. Fica mais fácil, declarativo e aumenta a produtividade. O sistema de meta objetos do joose é multiparadigma, ou seja, ele suporta desenvolvimento voltado a classes, prototypos e tambem suporta herança de classes e extensão com roles.
+
+Importante, o joose não serve apenas para frontend. Tambem é muito usado no backend junto com nodejs. É importante entender que o joose não está atrelado a markup nem a views. No entando ele pode ser usado no frontend (browser) e usar jquery ou javascript puro para modificar o dom e etc. E o Angular, Dojo, ExtJS, etc por exemplo podem ser usadas em conjutno com o joose.
 
 =head2 O que NÃO é Joose JS
 
 Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
+
+Ele não trabalha no nível de markup. Mas pode ser usado em conjunto com jquery.
+
+=head3 Seters, getters
+
+Não ha necessidade de ficar declarando setters e getters pois todo atributo tem um setter e um geter criado implicitamente. Você pode mudar o nome dos getters e setters. Especialmente se quiser usar um after ou before de setters ou getters.
+
+ex: 
+
+  Class( "Pessoa", {
+      has: {
+          nome        : { is: 'rw' },
+          sobrenome   : { is: 'rw' },
+          idade       : { is: 'rw' },
+          amigos      : { is: 'rw', init: (function() { })( return [] ) }, // Array
+      }
+  } )
 
 =head3 Classes
 
@@ -43,7 +62,47 @@ Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
 
 =head3 Calculadora
 
-=head3 Extendendo a calculadora
+Como exemplo incial, vou começar com uma calculadora. A idéia é criar uma classe inicial com as funções básicas de somar, subtrair, dividir e multiplicar e um atributo resultado.
+
+  Class( "Calculadora", {
+    has : {
+      resultado: { is : "rw", init: (function() { return 0 }) }
+    },
+    methods : {
+      adicionar: function ( val1,val2 ) {
+        this.setResultado( val1 + val2 );
+        return this;
+      },
+      subtrair: function( val1,val2 ) {
+        this.setResultado( val1 - val2 );
+        return this;
+      },
+      multiplicar: function ( val1, val2 ) {
+        this.setResultado( val1 * val2 );
+        return this;
+      },
+      dividir: function( val1, val2 ) {
+        this.setResultado( val1 / val2 );
+        return this;
+      },
+      zerar: function( ) {
+        this.setResultado( 0 );
+        return this;
+      }
+    }
+  } )
+
+e a seguir, um exemplo de uso:
+
+  var calc = new Calculadora();
+  calc.adicionar( 1, 2 );         //soma 1 com 2 e armazena o resultado no atributo "resultado"
+  console.log( calc.resultado );  //mostra 3
+
+Nos próximos capítulos, a calculadora será extendida para ter mais funcionalidades mas sem mexer na calculadora básica.
+
+=head3 Extendendo a calculadora - Raíz quadrada
+
+Para extender a calculadora, vou criar uma Role que contém um método de raíz quadrada
 
 =head4 Referências
 

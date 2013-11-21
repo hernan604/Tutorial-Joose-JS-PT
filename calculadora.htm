@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+  <head>
+
+    <script type="text/javascript" src="./lib/joose.js"></script>
+    <script type="text/javascript" src="./lib/jquery.js"></script>
+    <script type="text/javascript" src="./lib/calculadora.js"></script>
+
+  </head>
+
+  <body>
+
+    <script>
+
+        CALCULADORA_BASICA: {
+          Class( "Calculadora" , {
+            isa: CalculadoraBase //extende / herda da classe CalculadoraBase. Agora esta classe Calculadora virou uma CalculadoraBase
+          } )
+
+          var calc = new Calculadora();
+          calc.adicionar( 1, 2 );
+          console.log( calc.resultado );
+        }
+
+        //Exemplo 2, extendo a calculadora para ter método de cálculo de raiz quadrada
+
+        CALCULADORA_COM_RAIZ_QUADRADA: {
+          Class( "Calculadora", {
+            isa: CalculadoraBase,
+            does: [ RaizQuadrada ]
+          } )
+
+          var calc = new Calculadora();
+          var raiz = calc.raiz_quadrada(  calc.adicionar( 2, 2 ).resultado  ).resultado;
+          console.log( raiz );
+        }
+
+        //Exemplo 3, adicionando role de potência
+        CALCULADORA_COM_POTENCIA: {
+          Class( "Calculadora", {
+            isa: CalculadoraBase,
+            does: [ Potencia ]
+          } )
+
+          var calc = new Calculadora();
+          console.log( calc.elevar( 2, 3 ).resultado );
+        }
+
+        CALCULADORA_COM_RAIZ_QUADRADA_E_POTENCIA: {
+          Class( "Calculadora", {
+            isa: CalculadoraBase,
+            does: [
+              RaizQuadrada,   //agora esta classe implementa as funcionalidades de raiz quadrada
+              Potencia,       //agora tambem implementa funcionaldiade de potencia
+            ]
+          } )
+
+          var calc = new Calculadora();
+          console.log( calc.elevar( 2, 3 ).resultado );
+          console.log( calc.raiz_quadrada(   calc.elevar( 2, 3 ).resultado ).resultado  );
+        }
+
+        CALCULADORA_COM_VIEW: {
+          Class("Calculadora", {
+            isa: CalculadoraBase,
+            does: [
+              RaizQuadrada,
+              Potencia,
+              CalculadoraView,
+            ]
+          } )
+          //neste exemplo, vamos precisar adicionar uma tag no <body>. e o jquery será usado dentro da role CalculadoraView
+          //O CalculadoraView é que vai fazer a ponte para manipular o dom, sempre que um resultado for setado.
+          var div_calculadora = jQuery( "<div>" )
+                                  .attr( "id", "calculadora" ).html('x');
+          jQuery( "body" ).append( div_calculadora );
+
+          var calc = new Calculadora( {
+              resultado : 2
+          } );
+        }
+    </script>
+
+  </body>
+
+</html>
