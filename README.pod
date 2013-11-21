@@ -283,7 +283,7 @@ Outros modificadores de métodos mais poderosos são o Override e Around. Estes 
     //Meus arounds
 
     around: {
-      perguntar_frase: function ( original, pergunta ) {
+      perguntar_frase: function ( original, pergunta ) { //original é a referencia ao método original
         return ( pergunta && pergunta.length > 10 ) 
           ? original( pergunta )        //chama o método original
           : "pergunta muito curta";     //não chama método orignal e retorna este valor
@@ -295,26 +295,6 @@ Outros modificadores de métodos mais poderosos são o Override e Around. Estes 
   console.log( pessoa.dizer_frase( "Tambem sei falar!" ) );
   console.log( pessoa.perguntar_frase( "Nome?" ) );
   console.log( pessoa.perguntar_frase( "Qual seu nome ?" ) );
-
-
-=head4 before
-
-O before permite que seja executado algo antes da execução do método relacionado ao before.
-
-  Class( "Pessoa", {
-    has: {
-      nome: { is: "rw" }
-    },
-    before: {
-      setNome: function () { 
-        console.log( "Antes de executar this.setNome('...') " );
-      }
-    }
-  } )
-
-=head4 after
-
-O after permite executar algo após a execução do método.
 
 =head3 Classes
 
