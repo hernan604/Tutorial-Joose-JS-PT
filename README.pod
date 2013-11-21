@@ -4,4 +4,57 @@
 
 Tutorial Joose JS - em portugês
 
+=head2 SYNOPSE
+
+Joose é um sistema de meta objetos para javascript que suporta:
+
+  classes
+  herança
+  traits
+  modificadores de método 
+
+=head2 DESCRIÇÃO
+
+Joose é um sistema de meta objetos para javascript. 
+
+O joose facilita o trabalho com orientação a objeto no javascript. Fica mais fácil, declarativo e aumenta a produtividade
+
+=head2 O que NÃO é Joose JS
+
+Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
+
+=head3 Classes
+
+=head3 Roles
+
+=head3 Traits
+
+=head3 Types
+
+=head3 Namespaces
+
+=head3 Singletons
+
+=head3 Prototypes
+
+=head3 Modificadores de métodos
+
+=head2 Exemplo prático
+
+=head3 Calculadora
+
+=head3 Extendendo a calculadora
+
+=head4 Referências
+
+http://code.google.com/p/joose-js/
+
+Alguns trechos são traduzidos/copiados da documentação oficial do joose.
+
+=head4 Autor
+
+=head4 Colaboradores
+
+Se você ajudar a melhorar este documento, adicione seu nome abaixo.
+
 =cut
