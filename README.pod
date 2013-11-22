@@ -1105,10 +1105,6 @@ e depois eu crio uma classe Calculadora que extende minha calculadorabase e adic
   console.log( calc.elevar( 2, 3 ).resultado );
   console.log( calc.raiz_quadrada(   calc.elevar( 2, 3 ).resultado ).resultado  );
 
-=head3 Extendendo a calculadora - Raíz quadrada
-
-Para extender a calculadora, vou criar uma Role que contém um método de raíz quadrada
-
 =head4 Referências
 
 http://code.google.com/p/joose-js/
