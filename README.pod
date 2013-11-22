@@ -27,7 +27,7 @@ O joose ajuda a trabalhar com classes, namespaces, heranças, roles, reduzir o n
 
 Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
 
-Ele não trabalha no nível de markup. Mas pode ser usado em conjunto com jquery.
+Ele não trabalha no nível de markup. Mas pode ser usado em conjunto com jquery, dojo, angular, extjs, etc.
 
 =head3 Seters, getters
 
