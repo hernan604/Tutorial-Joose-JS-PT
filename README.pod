@@ -10,7 +10,7 @@ Joose é um sistema de meta objetos para javascript que suporta:
 
   classes
   herança
-  traits
+  traits / roles
   modificadores de método
 
 E permite que você crie classes como se fosse LEGO, literalmente.
@@ -366,7 +366,7 @@ E uma classe pessoa, que vai exercer tambem o papel de programador
     }
   } )
 
-=head3 Roles
+=head3 Roles / Traits
 
 As roles não podem ser instanciadas, ou seja, não é possível fazer:
 
@@ -521,7 +521,53 @@ Então é isso, eu posso montar uma role de roles e classes com roles. Parece LE
 
 =head3 Requires
 
-=head3 Traits
+As roles podem utilizar métodos que estão em outras classes. Ou, que estão em outras roles. E para não ficar validando dentro de cada método, é possível simplesmente dizer que uma role 'requires' um determinado método para poder ser usada. Isso evita eu precisar fazer " if ( ! this.algum_metodo ) { executar } else { alert('metodo algum_metodo não está disponível') } ".  ** obs o setNomeAtributo tambem é um método.. ou seja, tambem é possivel requerer atributos.
+
+exemplo, primeiro vou definir uma classe pessoa:
+
+  Class( "PessoaSimples" , { 
+    has: {
+      nome: { is: "rw" }
+    }
+  })
+
+agora vou definir uma Role "Paraquedas", que implementa as funcionalidades de um paraquedas. Observe que essa role requires o método 'pular_do_aviao'. Ou seja, eu só posso usar essa role em classes/roles que implementam um método chamado 'pular_do_aviao'
+
+  Role( "Paraquedas" , {
+    requires: [               //para usar essa role, tem que estar definido:
+      'pular_do_aviao',       //metodo pular do aviao. 
+      'setNivel_paraquedista' //atributo nivel_paraquedista
+    ],
+    has : {
+      cor_paraquedas: { is : "rw", init: ( function(){return"paraquedas azul"})() }
+    },
+    methods: {
+      abrir_paraquedas: function () { 
+        console.log( "abriu paraquedas" );
+      },
+      pular: function () { 
+        this.pular_do_aviao(); /// eu vou executar este metodo que esta em outra classe!! por isso eu "requires" que ele exista...
+                               //senão eu teria que fazer validação aqui mesmo e ia ficar horrivel, ex (de coisa horrivel):
+                               //if ( typeof this.pular_do_aviao != "undefined" ) { this.pular_do_aviao }  //eca!!   vs  requires : [ "pular_do_aviao" ]
+                               //isso sem dizer que seria necessario validar em todos os pontos que fariam uso do método.... ah vá... requires é bem melhor
+      }, 
+    }
+  } )
+
+E agora vou implementar minha classe Paraquedista, que vai herdar de pessoa, e vai usar a Role "Paraquedas" 
+
+  Class( "Paraquedista" , {
+    isa : PessoaSimples,
+    does: [Paraquedas],
+    has : {
+      nivel_paraquedista: { is : "rw" }
+    },
+    methods : { 
+      pular_do_aviao : function () {
+        console.log( "pulando " );
+      }
+    }
+  } )
 
 =head3 Types
 

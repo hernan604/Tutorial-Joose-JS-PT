@@ -260,6 +260,15 @@
 
         }
 
+
+        EXEMPLO_DE_REQUIRE: { 
+          var paraquedista = new Paraquedista( { nome : "Fatjoe" } );
+          console.log( paraquedista.nome );
+                       paraquedista.pular();   //vem da Classe "Paraquedista"
+                       paraquedista.abrir_paraquedas(); //vem da Role "Paraquedas"
+          console.log( paraquedista.cor_paraquedas );   //vem da Role "Paraquedas"
+        }
+
     </script>
 
   </body>
