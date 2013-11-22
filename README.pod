@@ -79,7 +79,7 @@ Neste exemplo vou criar e definir minha classe Pessoa:
           nome        : { is: 'rw' },
           sobrenome   : { is: 'rw' },
           idade       : { is: 'rw' },
-          amigos      : { is: 'rw', init: (function() { })( return [] ) }, // Array
+          amigos      : { is: 'rw', init: (function() { return [] })( ) }, // amigos é inicializa com array vazio por padrão
       }
   } )
 
@@ -108,6 +108,8 @@ ou melhor ainda, vou instanciar a classe passando um objeto e a classe é automa
 
 menos código, menos bugs. Mais clean.
 
+Na situação acima, se vc trabalhar com objetos que são recebidos de um banco de dados, ou um json podem ser jogados diretamente ao criar a instância. Mão na roda.
+
 =head3 Atributos
 
 Todas as Classes e Roles podem ter atributos. Ao registrar um atributo para sua classe, um attribute accessor é criado para você.
@@ -121,18 +123,25 @@ Os atributos ficam dentro do bloco has.
       sexo: {
                 is : "ro"    //ro = readonly. Ou seja, não é permitido escrever nesse atributo
           required : true,   //indica que o atributo é requerido
+              lazy : true,   //indice que o atributo é lazy
+                             //existem outras opções no manual do joose
       }
   }
 
-Foi escolhido 'has' pois atributos são considerados membros de um objeto, ou seja, "um objeto has um atributo", ou "um objeto tem um atributo", ou "uma pessoa tem nome"
+Foi escolhido 'has' pois atributos são considerados membros de um objeto, ou seja, "um objeto has um atributo", ou "um objeto tem um atributo", ou "uma pessoa tem um nome"
 
-Isso quer dizer que você só indica o nome do atributo e os getters e setters são criados behind-the-scenes.
+Isso quer dizer que você só indica o nome do atributo. Os getters e setters são criados automagicamente behind-the-scenes.
 
-o padrão para os accessors é set junto com a primeira letra do atributo em maiúscula, ex:
+o padrão para os accessors é "set" junto com a-primeira-letra-do-atributo-em-maiúscula, ex:
 
   Class( "Pessoa" , {
     has: {
-      nome: { is: "rw" }
+      nome: { is: "rw" }          //atributo nome
+    },
+    methods: {
+      dizer_nome: function () { 
+        console.log( this.nome ); //acessa atrituto nome dentro da classe Pessoa
+      }
     }
   } )
 
@@ -146,13 +155,15 @@ e o getter fica:
 
   pessoa.getNome()
 
-óbviamente que vc tambem pode fazer:
+óbviamente que tambem é possível acessar diretamente o atributo:
 
   pessoa.nome
 
   ou 
 
   pessoa.nome = "Mônica"
+
+Mas provavelmente você não quer fazer isso pois vai perder a facilidade dos modificadores de método.
 
 Resumindo, para acessar os atributos de fora da classe:
 
@@ -169,6 +180,14 @@ mas ao vc acessar/setar diretamente o atributo, vc perde a facilidade dos modifi
 =head3 Métodos
 
 Os métodos podem ser definidos tanto em Classes quanto em Roles. e ficam dentro do bloco methods:{ ... }, ex:
+
+  Role( "Lixeiro", {    //Roles tambem podem ter métodos
+    methods : { 
+      limpar_cidade: function () { 
+        console.log( "Sou lixeiro, mantenho a cidade limpa. Você ajuda a manter a cidade limpa? hm... :)" );
+      }
+    }
+  } )
 
   Class( "Programador", {
     isa : Pessoa,         //herda da classe Pessoa
@@ -300,13 +319,18 @@ Outros modificadores de métodos mais poderosos são o Override e Around. Estes 
 
 A principal diferença entre classes e roles é que classes podem ser instanciadas e roles não. As roles podem ser consumidas por outras classes e outras roles.
 
-Pra falar bem grossamente, uma classe pode ser montada com várias roles. 
+Pra falar bem grossamente, uma classe pode ser montada com várias roles. Parece lego.
 
 =head3 Classes
 
 As classes podem ser instanciadas, ou seja, é possível fazer:
 
   var pessoa = new Pessoa();
+
+  ou 
+
+  item = { nome: "João", idade: 50 };
+  var pessoa = new Pessoa( item );
 
 como sempre, as classes podem ter atributos, metodos, modificadores de métodos. 
 
@@ -346,9 +370,154 @@ E uma classe pessoa, que vai exercer tambem o papel de programador
 
 As roles não podem ser instanciadas, ou seja, não é possível fazer:
 
-  var role_programador = new Programador_Role(); // Se Programador_Role for uma role, isso vai dar pau.
+  var role_programador = new Programador_Role(); // Se Programador_Role for uma role, isso vai não vai funcionar.
 
-As roles são para ser utilizadas nas classes. Role em inglês quer dizer "papel", no sentido de atores por exemplo.. uma hora o ator exerce o papel de algo.
+As roles são para ser utilizadas nas classes ou em outras roles. Role em inglês quer dizer "papel", no sentido de atores por exemplo.. uma hora o ator exerce o papel de algo. Ou, por exemplo no caso de classe "Pessoa" ela pode ter uma "Role" de "Programador", ou pode ter uma role de "Mecanico", etc. 
+
+Para usar uma role, é necessário incluir a mesma na diretiva "does". pode ser apenas uma, mas tambem pode ser um array de roles. Então vou definir algumas roles que poderiam ser usadas com Pessoa ex:
+
+  Role( "Corredor", { 
+    methods: {
+      correr: function () { console.log( "correndo.." ) }  
+    }
+  } )
+
+  Role( "Nadador", { 
+    methods: {
+      nadar: function () { console.log( "nadando.." ) }
+    }
+  } )
+
+  Role( "Ciclista", { 
+    methods: {
+      andar_de_bike: function () { console.log( "andando de bike" ) }
+    }
+  } )
+
+e agora vou usá-las em Pessoa
+
+  Role( "Pessoa", { 
+    does: Nadador,
+    has : {
+      nome : { is: "rw" },
+      sobrenome: { is: "rw" }
+    }
+  } )
+
+ou , se eu preferir posso transformar a pessoa em tri-atleta facilmente:
+
+  Role( "Triatleta" , { 
+    does: [ Pessoa, Nadador, Ciclista, Corredor ]
+  } )
+
+Vou dar um exemplo de uma classe CalculadoraBase que implementa as funções básicas do módulo calculadora. E logo em seguida vou adicionar uma role de RaizQuadrada nessa Calculadora. E dai vou poder calcular a raiz quadrada, mas sem mexer no CalculadoraBase:
+
+  Class( "CalculadoraBase", {
+    has : {
+      resultado: { is : "rw", init: (function() { return 0 }) }
+    },
+    methods : {
+      adicionar: function ( val1,val2 ) {
+        this.setResultado( val1 + val2 );
+        return this;
+      },
+      subtrair: function( val1,val2 ) {
+        this.setResultado( val1 - val2 );
+        return this;
+      },
+      multiplicar: function ( val1, val2 ) {
+        this.setResultado( val1 * val2 );
+        return this;
+      },
+      dividir: function( val1, val2 ) {
+        this.setResultado( val1 / val2 );
+        return this;
+      },
+      zerar: function( ) {
+        this.setResultado( 0 );
+        return this;
+      }
+    }
+  } )
+
+e vou definir tambem algumas roles, que eu posso ou não usar.. fica a meu critério:
+
+  Role( "RaizQuadrada", {
+    methods: {
+      raiz_quadrada: function( val1 ) {
+        this.setResultado(  Math.sqrt( val1 )  );
+        return this;
+      }
+    }
+  } )
+
+  Role( "Potencia" , {
+    methods: {
+      elevar: function ( val1, val2 ) {
+        this.setResultado( Math.pow( val1, val2 ) );
+        return this;
+      }
+    }
+  } )
+
+certo, agora que eu tenho uma classe e algumas roles, eu vou criar uma classe "Calculadora" que vai herdar de CalculadoraBase e alem disso vou adicionar as roles de RaizQuadrada e Potencia na minha calculadora:
+
+  Class( "Calculadora", {
+     isa : CalculadoraBase,
+    does : [
+      RaizQuadrada,   //agora esta classe implementa as funcionalidades de raiz quadrada
+      Potencia,       //agora tambem implementa funcionaldiade de potencia
+    ]
+  } )
+
+  var calc = new Calculadora();
+  console.log( calc.elevar( 2, 3 ).resultado ); //usando metodo elevar ( da role Potencia )
+  console.log( calc.raiz_quadrada(   calc.elevar( 2, 3 ).resultado ).resultado  ); //usando metodo raiz_quadrada ( da role RaizQuadrada )
+  console.log( calc.adicionar( 1,3 ).resultado ); //usando metodo adicionar que está na minha CalculadoraBase
+
+Uma Role tambem pode incluir outras Roles... por exemplo, vou definir uma role Dormir:
+
+  Role( "Dormir", {
+    methods: {
+      dormir: function () { 
+        console.log( "  dormir...." );
+      }
+    }
+  } )
+
+e vou criar outras 3 roles, que tambem vão usar a role dormir:
+
+  Role( "DescancoProgramador" , {
+    does: Dormir,
+    after: {
+      programar : function() { 
+        console.log("depois de programar: ");
+        this.dormir() 
+      },
+    }
+  } )
+
+  Role( "DescancoPiloto" , {
+    does: Dormir,
+    after: {
+      pilotar : function() { 
+        console.log("depois de pilotar: ");
+        this.dormir() 
+      },
+    }
+  } )
+
+  Role( "DescancoMecanico" , {
+    does: Dormir,
+    after: {
+      consertar_carro : function() { 
+        console.log("depois de consertar o carro:");
+        this.dormir() 
+      },
+    }
+  } )
+
+Então é isso, eu posso montar uma role de roles e classes com roles. Parece LEGO.
 
 =head3 Requires
 

@@ -229,6 +229,37 @@
           }
         }
 
+
+
+
+        TYPE_QUE_DEFINE_FUNCAO : {
+
+          var meio_de_transporte_1 = new MeioDeTransporte( { veiculo: "carro" } );
+          //como o atributo veiculo é um Joose.Type dentro da classe MeioDeTransporte, o atributo automagicamente será transformado no tipo especificado de acordo com o valor que vc passar pra ele.
+          console.log( meio_de_transporte_1.veiculo );
+          console.log( meio_de_transporte_1.veiculo.nome );
+                       meio_de_transporte_1.veiculo.pegar_estrada();
+
+          var meio_de_transporte_2 = new MeioDeTransporte( { veiculo : "aviao" } );
+          console.log( meio_de_transporte_2.veiculo.nome );
+                       meio_de_transporte_2.veiculo.voar();
+
+          var meio_de_transporte_3 = new MeioDeTransporte( { veiculo : "trem" } );
+          console.log( meio_de_transporte_3.veiculo.nome );
+                       meio_de_transporte_3.veiculo.andar_no_trilho();
+
+          var meio_de_transporte_4 = new MeioDeTransporte( { veiculo : "barco" } );
+          console.log( meio_de_transporte_4.veiculo.nome );
+                       meio_de_transporte_4.veiculo.navegar();
+
+
+          var meio_de_transporte_5 = new MeioDeTransporte( { veiculo : "NAO DEFINID...BLAA." } );
+          console.log( meio_de_transporte_5.veiculo ); // vai retornar false, pois tem essa regra no Type: Transporte
+
+          // \o/
+
+        }
+
     </script>
 
   </body>
