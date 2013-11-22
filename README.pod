@@ -68,9 +68,11 @@ Como é feito normalmente em js:
 
   pessoa.getNome();
 
-Não ha necessidade de ficar declarando setters e getters pois todo atributo tem um setter e um geter criado implicitamente. Você pode mudar o nome dos getters e setters. Especialmente se quiser usar um after ou before de setters ou getters.
+O trecho acima é uma maneira comum de definir getters e setters. Na minha opinião isso acaba poluíndo o código e adiciona pontos de falha, e no final são apenas getters e setters que não servem pra nada alem de setar e retornar valor. Os getters e setters podem ser muito mais úteis utilizando um sistema de meta objetos.
 
-ex, primeiro vou criar e definir minha classe Pessoa: 
+No JooseJS não há necessidade de ficar declarando setters e getters pois todo atributo tem um setter e um geter criado implicitamente. Além disso, é como os getters e setters são apenas métodos, você ganha instantaneamente a possibilidade de utilizar modificadores de métodos nos atributos.
+
+Neste exemplo vou criar e definir minha classe Pessoa: 
 
   Class( "Pessoa", {
       has: {
