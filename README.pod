@@ -17,8 +17,6 @@ E permite que você crie classes como se fosse LEGO, literalmente.
 
 =head2 DESCRIÇÃO
 
-Joose é um sistema de meta objetos para javascript.
-
 O joose facilita o trabalho com orientação a objeto no javascript. Fica mais fácil, declarativo e aumenta a produtividade. O sistema de meta objetos do joose é multiparadigma, ou seja, ele suporta desenvolvimento voltado a classes, prototypos e tambem suporta herança de classes e extensão com roles.
 
 Importante, o joose não serve apenas para frontend. Tambem é muito usado no backend junto com nodejs. É importante entender que o joose não está atrelado a markup nem a views. No entando ele pode ser usado no frontend (browser) e usar jquery ou javascript puro para modificar o dom e etc. E o Angular, Dojo, ExtJS, etc por exemplo podem ser usadas em conjutno com o joose.
