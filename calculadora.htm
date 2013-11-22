@@ -292,6 +292,34 @@
           console.log( "is turbo? "+ monzinha.turbo );
         }
 
+
+        EXEMPLO_SINGLETON: { 
+          var singleton = SingletonAloAlo.getInstance();
+          singleton.alo_alo_from_singleton();
+          singleton.alo_alo_from_singleton();
+          singleton.alo_alo_from_singleton();
+          console.log( singleton.count_chamadas_alo_alo );
+
+          //e em outra parte da app:
+
+          var singleton_2 = SingletonAloAlo.getInstance();
+          console.log( singleton_2.count_chamadas_alo_alo );
+        }
+
+
+        EXEMPLO_ENGINES: { 
+          var jeepao = new Jeep( { engine: new Estilo4x4() } );
+          var diablo = new Lamborghini( { engine: new EstiloCorrida() } );
+
+
+          jeepao.acelerar();
+          jeepao.brecar();
+
+          diablo.acelerar();
+          diablo.brecar();
+
+        }
+
     </script>
 
   </body>

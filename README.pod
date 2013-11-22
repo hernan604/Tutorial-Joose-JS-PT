@@ -888,11 +888,124 @@ E o uso dessa bagaça fica:
 
 =head3 Singletons
 
+O singleton é uma classe que é instanciada automaticamente na sua app e, você não pode criar mais instâncias dela.. apenas uma instancia vai existir na app e poderá ser acessada de qualquer ponto da aplicação. Por isso o nome Singleton. Veja o exemplo:
+
+Primeiro vou criar minha classe singleton chamada: SingletonAloAlo. Ela tem 1 método que vai falar "alô alô". E tem um contador de quantas vezes já falou alô alô.
+
+  Class("SingletonAloAlo", {
+      does: [Joose.Singleton],
+      has: {
+          count_chamadas_alo_alo: {
+              is: "rw",
+              init: function() { return 0 }
+          }
+      },
+      methods: {
+          alo_alo_from_singleton: function() {
+              this.setCount_chamadas_alo_alo( this.getCount_chamadas_alo_alo() + 1 );
+              console.log( "alô alô" );
+          }
+      }
+  })
+
+feito isso, quando minha aplicação inicializar, eu consigo acessar a instância desse singleton, da seguinte maneira:
+
+  var singleton = SingletonAloAlo.getInstance();  //pega a referencia do singleton e joga na variavel singleton
+  singleton.alo_alo_from_singleton();             //falou alô alô e contabilizou +1 
+  singleton.alo_alo_from_singleton();             //falou alô alô e contabilizou +1 
+  singleton.alo_alo_from_singleton();             //falou alô alô e contabilizou +1 
+  console.log( singleton.count_chamadas_alo_alo );//mostra 3 
+
+E agora vamos supor que estou em outro ponto da aplicação e quero recuperar meu singleton, posso fazer:
+
+
+  var singleton_2 = SingletonAloAlo.getInstance();    //recupera a referência do meu singleton
+  console.log( singleton_2.count_chamadas_alo_alo );  //mostra 3 pois existiram 3 chamadas anteriores do metodo que fala alôalô
+
 =head3 Prototypes
 
 =head2 Exemplo prático
 
-=head3 Calculadora
+Para ver mais exemplos, abra o arquivo ./calculadora.htm  e veja o arquivo: ./lib/calculadora.js
+
+=head3 Exemplo 1 - Carros e motores
+
+  Class( "EstiloCorrida", {
+    methods: {
+      acelerar: function() {
+        console.log( "Acelerando muito rapido pois este motor é de corrida" );
+      },
+      brecar: function() {
+        console.log( "Brecando com freios ABS... carro de corrida sempre tem" );
+      },
+    } 
+  } )
+  Class( "Estilo4x4", {
+    methods: {
+      acelerar: function() {
+        console.log( "Acelerando o máximo com este motor de 4x4." )
+      },
+      brecar: function() {
+        console.log( "Brecando sem abs neste modelo 4x4" );
+      },
+    } 
+  } )
+
+  Class( "Lamborghini", {
+    has: { 
+      engine: {
+        is: "rw"
+      }
+    },
+    methods: {
+      acelerar: function () {   
+        this.engine.acelerar();
+      },
+      brecar: function() {  
+        this.engine.brecar();
+      }
+    },
+    after: {
+      setEngine: function () {
+        console.log( "Configurada classe com motor: " + this.engine.meta._name );
+      }
+    }
+  } )
+
+  Class( "Jeep", {
+    has: { 
+      engine: {
+        is: "rw"
+      }
+    },
+    methods: {
+      acelerar: function () {   
+        this.engine.acelerar();
+      },
+      brecar: function() {  
+        this.engine.brecar();
+      }
+    },
+    after: {
+      setEngine: function () {
+        console.log( "Configurada classe com motor: " + this.engine.meta._name );
+      }
+    }
+  } )
+
+e o uso:
+
+  var jeepao = new Jeep( { engine: new Estilo4x4() } );
+  var diablo = new Lamborghini( { engine: new EstiloCorrida() } );
+
+  jeepao.acelerar();
+  jeepao.brecar();
+
+  diablo.acelerar();
+  diablo.brecar();
+
+
+=head3 Exemplo 2 - Calculadora
 
 Como exemplo incial, vou começar com uma calculadora. A idéia é criar uma classe inicial com as funções básicas de somar, subtrair, dividir e multiplicar e um atributo resultado.
 
@@ -930,7 +1043,67 @@ e a seguir, um exemplo de uso:
   calc.adicionar( 1, 2 );         //soma 1 com 2 e armazena o resultado no atributo "resultado"
   console.log( calc.resultado );  //mostra 3
 
-Nos próximos capítulos, a calculadora será extendida para ter mais funcionalidades mas sem mexer na calculadora básica.
+E para extender a calculadora posso simplesmente criar novas Roles e criar uma classe que extende a calculadora, ex:
+
+  Class( "CalculadoraBase", {
+    has : {
+      resultado: { is : "rw", init: (function() { return 0 }) }
+    },
+    methods : {
+      adicionar: function ( val1,val2 ) {
+        this.setResultado( val1 + val2 );
+        return this;
+      },
+      subtrair: function( val1,val2 ) {
+        this.setResultado( val1 - val2 );
+        return this;
+      },
+      multiplicar: function ( val1, val2 ) {
+        this.setResultado( val1 * val2 );
+        return this;
+      },
+      dividir: function( val1, val2 ) {
+        this.setResultado( val1 / val2 );
+        return this;
+      },
+      zerar: function( ) {
+        this.setResultado( 0 );
+        return this;
+      }
+    }
+  } )
+
+  Role( "RaizQuadrada", {
+    methods: {
+      raiz_quadrada: function( val1 ) {
+        this.setResultado(  Math.sqrt( val1 )  );
+        return this;
+      }
+    }
+  } )
+
+  Role( "Potencia" , {
+    methods: {
+      elevar: function ( val1, val2 ) {
+        this.setResultado( Math.pow( val1, val2 ) );
+        return this;
+      }
+    }
+  } )
+
+e depois eu crio uma classe Calculadora que extende minha calculadorabase e adiciona as roles de RaizQuadrada e Potencia
+
+  Class( "Calculadora", {
+    isa: CalculadoraBase,
+    does: [
+      RaizQuadrada,   //agora esta classe implementa as funcionalidades de raiz quadrada
+      Potencia,       //agora tambem implementa funcionaldiade de potencia
+    ]
+  } )
+
+  var calc = new Calculadora();
+  console.log( calc.elevar( 2, 3 ).resultado );
+  console.log( calc.raiz_quadrada(   calc.elevar( 2, 3 ).resultado ).resultado  );
 
 =head3 Extendendo a calculadora - Raíz quadrada
 
@@ -943,6 +1116,8 @@ http://code.google.com/p/joose-js/
 Alguns trechos são traduzidos/copiados da documentação oficial do joose.
 
 =head4 Autor
+
+Hernan Lopes
 
 =head4 Colaboradores
 
