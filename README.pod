@@ -571,11 +571,320 @@ E agora vou implementar minha classe Paraquedista, que vai herdar de pessoa, e v
 
 =head3 Types
 
-Type coercions have been proven to be extremely useful in JavaScript code because many tasks in JavaScript deal with user provided data that is in string form. Coercions provide a very convenient way to transform this string data into meaningful things. After the definition of the types your application code can basically "ignore" things like data validation and conversion. This makes the code more expressive and should reduce errors because it is harder to forget to validate data.
+Coerção de tipos é a mão na roda em javascript pois normalmente os atributos recebem dados de usuários ou aplicações que estão em formato string, ou em formatos errados/indesejados. E a coerção oferece uma maneira muito conveniente ( e centralizada ) de transformar o dado de entrada no formato que eu quero. 
 
-REFENCIA: http://www.nonblocking.io/2009/01/type-contraints-and-type-coercions-in.html 
+O uso é simples, como eu disse fica junto do atributo, por exemplo: 
+
+  Class( "Pessoa", {
+    has : {
+      nome : {
+              is : "rw",
+             isa : Joose.Type.ExemploTipoString, //<-- atributo nome vai implementar o tipo ExemploTipoString
+          coerce : true,
+            lazy : true,
+      },
+      sobrenome : {
+              is : "rw",
+             isa : Joose.Type.ExemploTipoString,
+          coerce : true,
+      },
+      idade : {
+               is : "rw",
+              isa : Joose.Type.ExemploTipoNumerico, //<-- vai virar numerico
+           coerce : true,
+      },
+      peso : {
+               is : "rw",
+              isa : Joose.Type.ExemploTipoPeso,    //vai receber um numero e vou retornar numero+" kg".
+           coerce : true,
+      },
+    },
+    methods : {
+      andar : function () {
+        //...
+      },
+    }
+  } )
+
+A idéia de tipos, é definir os tipos e amarrar eles aos atributos. Assim não será mais necessário ficar fazendo por exemplo, parseInt( variavel ) toda hora. Se eu não usasse types, eu teria que adicionar uma validação dentro do meu setNomeAtributo.. eu teria que adicionar um if ( is_numerico(valor) ) { this.setNomeAtributo( valor ) } else { this.setNomeAtributo( parseInt( valor ) ) } e etc etc... horrível pra não dizer algo pior.
+
+Vou definir um tipo "ExemploNumerico". 
+
+  Type( "ExemploTipoNumerico" , {
+    uses  : Joose.Type.Any,
+    where : function ( val ) {
+      if ( val == null ) return true; //se for nulo permite setar valor (eu simplesmente permiti uma excessão ao valor null)
+      return false;                   //se não for nulo pode ser qualquer coisa, string, objeto, etc. vai retornar false e
+                                      //vai rodar as regras de coerce abaixo. As regras de coerce são opcionais e servem
+                                      //para transformar um valor recebido no valor que desejado.
+    },
+    coerce : [ //coerce transforma o valor no que eu quero
+      {
+        from  : Joose.Type.Any,
+        via   : function ( val ) {
+          var pattern_digits = /^(\d+)$/ig;
+          if ( ! pattern_digits.test( val ) ) {
+            return false;
+          }
+          return parseFloat( val );
+        }
+      }
+    ]
+  } )
+
+e um tipo string
+
+  Type( "ExemploTipoString", {
+     uses : Joose.Type.Any,
+    where : function ( val ) {
+      if ( typeof val == "string" || val == null ) return true; //ta liberado pra setar nulo
+      return false;
+    },
+    coerce: [
+        //primeira regra
+        {
+          from : Joose.Type.Any,
+           via : function ( val ) {
+             console.log( Joose.Type.Any );
+            if ( typeof val != "string" ) return ""+val; //transforma valor recebido em string
+            return val;
+          }
+        }
+    ]
+  } )
+
+e agora eu posso instanciar minha classe pessoa com os valores que ela se vira pra arrumar eles pra mim... se eu passar um numero num artributo ExemploTipoString, o numero será transformado em string... e se eu passar algo que não sejam numeros para o tipo "ExemploTipoNumerico" vai retornar false; Caso contrário meu coerce vai executar um parseFloat! veja o exemplo:
+
+  var pessoa = new Pessoa();
+  pessoa.setNome( "João" );
+  pessoa.setSobrenome( "da Silva" );
+  console.log( pessoa.nome );
+
+
+  var pessoa2 = new Pessoa( {
+           nome : 11,     //passei um numero aqui, automaticamente vai rolar um coerce e nome vai ser transformado em string.
+                          //mas eu poderia mudar a regra e retornar false se tivesse numeros no nome. fica a seu critério
+      sobrenome : "Silva",
+          idade : 50,
+           peso : 91.2
+  } );
+
+  console.log( pessoa2.nome );      //false
+  console.log( pessoa2.sobrenome ); //Silva
+  console.log( pessoa2.idade );     //50
+
+
+Ou vc pode querer definir um atributo como instância de outra classe, mas de acordo com o valor inserido no atributo. Por exemplo, se eu tiver uma classe "MeioDeTransporte" com atributo "veiculo" , e setar esse atributo como a string "barco", eu quero que esse atributo vire uma classe Barco e deixe de ser uma simples string. Por exemplo:
+
+Primeiro eu defino as classes e os typos:
+
+  Class( "Barco", {
+    has : {
+      nome: { is: "ro", init: (function(){return"Barco"})() }
+    },
+    methods : {
+      navegar: function () { 
+        console.log( "sou um " + this.nome + " e vou nagevar." );
+      }
+    }
+  } )
+
+  Class( "Carro", {
+    has : {
+      nome: { is: "ro", init: (function(){return"Carro"})() }
+    },
+    methods : {
+      pegar_estrada: function() { 
+        console.log( "sou um " + this.nome + " e vou pegar a estrada." );
+      }
+    }
+  } )
+
+  Class( "Aviao", {
+    has : {
+      nome: { is: "ro", init: (function(){return"Aviao"})() }
+    },
+    methods : {
+      voar: function () { 
+        console.log( "Sou um " + this.nome + " e vou voar." );
+      }
+    }
+  } )
+
+  Class( "Trem", {
+    has : {
+      nome: { is: "ro", init: (function(){return"Trem"})() }
+    },
+    methods : {
+      andar_no_trilho: function () { 
+        console.log( "Sou um " + this.nome + " e vou andar nos trilhos." );
+      }
+    }
+  } )
+
+e os tipos: 
+
+  Type( "Transporte" , {
+    uses : Joose.Type.Any,
+    where : function ( val ) { 
+      return false;
+    },
+    coerce: [
+      {
+        from : Joose.Type.Any,
+          via : function ( val ) { 
+            switch ( val.toLowerCase() ) {
+
+              case "barco":
+                return new Barco(); 
+                break;
+
+              case "carro": 
+                return new Carro(); 
+                break;
+
+              case "aviao":
+                return new Aviao();
+                break;
+
+              case "trem":
+                return new Trem();
+                break;
+
+              default: 
+                return false;
+                break
+           }
+        }
+      }
+    ]
+  } )
+
+e depois eu defino uma classe que vai usar o tipo: Joose.Type.Transporte,
+
+  Class( "MeioDeTransporte" , {
+    has : { 
+      veiculo: { 
+               is : "rw" ,
+              isa : Joose.Type.Transporte,
+           coerce : true,
+      }
+    },
+    methods : { 
+      veiculo_utilizado: function () {
+        console.log( "Estou usando o veiculo: " + this.veiculo.nome );
+      }
+    }
+  } )
+
+e ai eu uso essa bagaça assim :
+
+  var meio_de_transporte_1 = new MeioDeTransporte( { veiculo: "carro" } );
+  //como o atributo veiculo é um Joose.Type dentro da classe MeioDeTransporte, o atri-
+  //buto automagicamente será transformado no tipo especificado de acordo com o valor 
+  //que vc passar pra ele. oh que beleza!
+  console.log( meio_de_transporte_1.veiculo );
+  console.log( meio_de_transporte_1.veiculo.nome );
+               meio_de_transporte_1.veiculo.pegar_estrada();
+
+  var meio_de_transporte_2 = new MeioDeTransporte( { veiculo : "aviao" } );
+  console.log( meio_de_transporte_2.veiculo.nome );
+               meio_de_transporte_2.veiculo.voar();
+
+  var meio_de_transporte_3 = new MeioDeTransporte( { veiculo : "trem" } );
+  console.log( meio_de_transporte_3.veiculo.nome );
+               meio_de_transporte_3.veiculo.andar_no_trilho();
+
+  var meio_de_transporte_4 = new MeioDeTransporte( { veiculo : "barco" } );
+  console.log( meio_de_transporte_4.veiculo.nome );
+               meio_de_transporte_4.veiculo.navegar();
+
+
+  var meio_de_transporte_5 = new MeioDeTransporte( { veiculo : "NAO DEFINID...BLAA." } );
+  console.log( meio_de_transporte_5.veiculo ); // vai retornar false, pois tem essa regra no Type: Transporte
 
 =head3 Namespaces
+
+namespaces ajudam a agrupar partes da aplicação, vou dar um exemplo: 
+
+Vou definir um namespace: "Automovel.Motor"
+
+  Module( "Automovel.Motor", function() { 
+    Role( "Corrida" , { 
+      has: { 
+        turbo: { is: "rw", init: true },
+        lugares: { is: "rw", init: 1 },
+        potencia: { is: "rw" }
+      },
+      methods: { 
+        acelerar_fundo: function () {
+          console.log( "carro de corrida, acelerando fundo ..." );
+        } 
+      }
+    } ),
+    Role( "Passeio" , { 
+      has: { 
+        turbo: { is: "rw", init: false },
+        lugares: { is: "rw", init: 4 }
+      },
+      methods : { 
+        andar_na_boa: function () { 
+          console.log( "carro de passeio, andar na boa ..." );
+        }
+      }
+    } )
+  } ),
+
+E agora vou definir um namespace: "Automovel.Modelo"
+
+  Module( "Automovel.Modelo", function() { 
+      Class( "Ferrari" , {
+        has: { 
+          modelo: { is: "rw" , init: "ferrari testarrosa" }
+        },
+        does: [ Automovel.Motor.Corrida ]
+      } ),
+      Class( "Porshe", {
+        has: { 
+          modelo: { is: "rw" , init: "porshe 911" }
+        },
+        does: [ Automovel.Motor.Corrida ]
+      } ),
+      Class( "Fusca", {
+        has: { 
+          modelo: { is: "rw" , init: "fusca antigo" }
+        },
+        does: [ Automovel.Motor.Passeio ]
+      } ),
+      Class( "Monza" ,  { 
+        has: { 
+          modelo: { is: "rw" , init: "monza 2.0" }
+        },
+        does: [ Automovel.Motor.Passeio ]
+      } )
+  } )
+
+E o uso dessa bagaça fica: 
+
+  var ferrari = new Automovel.Modelo.Ferrari( { potencia: "400 cavalos", lugares: 2 } );
+  console.log( ferrari.modelo );
+  console.log( "is turbo? "+ ferrari.turbo );
+  ferrari.acelerar_fundo();
+
+  var porshe = new Automovel.Modelo.Porshe( { potencia: "300 cavalos", lugares: 2 } );
+  console.log( porshe.modelo );
+  console.log( "is turbo? "+ porshe.turbo );
+  porshe.acelerar_fundo();
+
+  var fusqueta = new Automovel.Modelo.Fusca( );
+  console.log( fusqueta.modelo );
+  console.log( fusqueta.lugares );
+  console.log( "is turbo? "+ fusqueta.turbo );
+
+  var monzinha = new Automovel.Modelo.Monza();
+  console.log( monzinha.modelo );
+  console.log( monzinha.lugares );
+  console.log( "is turbo? "+ monzinha.turbo );
 
 =head3 Singletons
 

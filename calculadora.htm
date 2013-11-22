@@ -122,7 +122,7 @@
 
 
           var pessoa2 = new Pessoa( {
-                   nome : 11,     //passei um numero aqui, automaticamente vai rolar um coerce e nome vai ficar igual a false
+                   nome : 11,     //passei um numero aqui, automaticamente vai rolar um coerce e nome vai ser transformado em string
               sobrenome : "Silva",
                   idade : 50,
                    peso : 91.2
@@ -267,6 +267,29 @@
                        paraquedista.pular();   //vem da Classe "Paraquedista"
                        paraquedista.abrir_paraquedas(); //vem da Role "Paraquedas"
           console.log( paraquedista.cor_paraquedas );   //vem da Role "Paraquedas"
+        }
+
+
+        EXEMPLO_NAMESPACES: { 
+          var ferrari = new Automovel.Modelo.Ferrari( { potencia: "400 cavalos", lugares: 2 } );
+          console.log( ferrari.modelo );
+          console.log( "is turbo? "+ ferrari.turbo );
+          ferrari.acelerar_fundo();
+
+          var porshe = new Automovel.Modelo.Porshe( { potencia: "300 cavalos", lugares: 2 } );
+          console.log( porshe.modelo );
+          console.log( "is turbo? "+ porshe.turbo );
+          porshe.acelerar_fundo();
+
+          var fusqueta = new Automovel.Modelo.Fusca( );
+          console.log( fusqueta.modelo );
+          console.log( fusqueta.lugares );
+          console.log( "is turbo? "+ fusqueta.turbo );
+
+          var monzinha = new Automovel.Modelo.Monza();
+          console.log( monzinha.modelo );
+          console.log( monzinha.lugares );
+          console.log( "is turbo? "+ monzinha.turbo );
         }
 
     </script>
