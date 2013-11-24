@@ -1014,6 +1014,26 @@ E agora vamos supor que estou em outro ponto da aplicação e quero recuperar me
 
 =head3 Prototypes
 
+Um prototipo joose suporta as mesmas funcionalidades do Class-builder, mas com uma diferença:
+
+Todas as instancias do prototipo recebem seus próprios meta-objetos. Isso significa que ao manipular uma instancia de um protótipo usando a meta interface, as alterações afetarão apenas a instância em questão.
+
+  Prototype("Kilogramas", {
+    methods: {
+      transform: function ( peso ) { 
+        return peso + " kg";
+      }
+    }
+  })
+
+  var proto_kilograms = new Kilogramas();
+  var meu_peso = 75;
+  console.log( proto_kilograms.transform( meu_peso ) );
+
+E ao instanciar um segundo prototipo a partir de um outro, o novo protótipo recebera todas as alterações, ex: 
+
+  var proto2 = new proto1.constructor()
+
 =head2 Exemplo prático
 
 Para ver mais exemplos, abra o arquivo ./calculadora.htm  e veja o arquivo: ./lib/calculadora.js
