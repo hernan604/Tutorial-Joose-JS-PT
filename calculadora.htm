@@ -320,6 +320,93 @@
 
         }
 
+
+        EXEMPLO_INITIALIZE: {
+          //veja nos logs, a mensagem: "AFTER método initialize chamado"
+          var computador_item = {
+            gabinete  : {
+              marca     : "corsair",
+              baias     : 5,
+              hdd       : [ 
+                { 
+                  marca   : "western digital",
+                  tamanho : "4",
+                  unidade : "TB",
+                  espaco_livre: 2.5,
+                },
+                {
+                  marca   : "seagate" ,
+                  tamanho : "2",
+                  unidade : "TB", 
+                  espaco_livre: 2,
+                },
+                //ou... mas pra que... os Types fazem isso pra vc =))
+                //new Harddisk( {
+                //  marca   : "seagate" ,
+                //  tamanho : "2",
+                //  unidade : "TB", 
+                //  espaco_livre: 2,
+                //} ),
+              ],
+              placa_mae: {
+                modelo: "ASUS9928GT"
+              }
+            },
+            mouse     : {
+                marca   : "razer",
+                com_fio : true,
+            },
+            teclado   : {
+                marca   : "razer",
+                com_fio : true,
+            },
+          // outro modo seria passar a instancia do teclado
+          //teclado   : new Teclado( {
+          //    marca   : "razer",
+          //    com_fio : true,
+          //}),
+            monitor   : [
+              {
+                marca     : "samsung",
+                polegadas : 15
+              },
+              {
+                marca     : "sony",
+                polegadas : 21
+              }
+            ],
+          }
+
+          var computer = new Computador( computador_item );
+          console.log( "Gabinete : " + computer.gabinete.toSource() );
+          console.log(  "Teclado : " + computer.teclado.toSource() );
+          console.log(    "Mouse : " + computer.mouse.toSource() );
+          console.log(  "Monitor : " + computer.monitor.toSource() );
+          computer.ligar();
+          console.log( computer.gabinete.hdd[0] );
+          console.log( computer.gabinete.hdd );
+          console.log( computer.gabinete.hdd );
+          var freespace = computer.gabinete.hdd[0].espaco_livre + computer.gabinete.hdd[0].unidade;
+          console.log( "Espaco livre em disco 1 (antes de formatar): " + freespace );
+          computer.gabinete.hdd[0].formatar();
+              freespace = computer.gabinete.hdd[0].espaco_livre + computer.gabinete.hdd[0].unidade;
+          console.log( "Espaco livre em disco 1 (após formatar): " + freespace );
+
+          console.log( "Espaco livre em disco 2: " + computer.gabinete.hdd[1].espaco_livre );
+
+
+          console.log( computer );
+        } 
+
+
+
+        EXEMPLO_AROUND_OVRERIDE: {
+          var pessoa = new PessoaExemploAroundEOverride();
+          console.log( pessoa.dizer_frase( "Tambem sei falar!" ) );
+          console.log( pessoa.perguntar_frase( "Nome?" ) );
+          console.log( pessoa.perguntar_frase( "Qual seu nome ?" ) );
+        }
+
     </script>
 
   </body>

@@ -23,6 +23,14 @@ Importante, o joose não serve apenas para frontend. Tambem é muito usado no ba
 
 O joose ajuda a trabalhar com classes, namespaces, heranças, roles, reduzir o número de linhas, reutilizar código e aumentar a produtividade.
 
+=head2 Pré-requisitos
+
+Antes de iniciar o desenvolvimento com Joose, obviamente você vai precisar carregar a lib antes. ex:
+
+  <script type="text/javascript" src="./lib/joose.js"></script>
+
+ou concatenar o código do Joose antes de criar as classes.
+
 =head2 O que NÃO é Joose JS
 
 Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
@@ -314,6 +322,33 @@ Outros modificadores de métodos mais poderosos são o Override e Around. Estes 
   console.log( pessoa.dizer_frase( "Tambem sei falar!" ) );
   console.log( pessoa.perguntar_frase( "Nome?" ) );
   console.log( pessoa.perguntar_frase( "Qual seu nome ?" ) );
+
+*** O escopo do "override" disponibiliza a variável: 
+
+  this.SUPER
+
+que nada mais é que a referência para o método original. Você pode usála caso julgue necessário. ex:
+
+  override: {
+    dizer_frase: function( frase ) {
+      return this.SUPER( false ) + " - OVERRIDE";
+    }
+  },
+
+=head4 Construção da classe
+
+Para executar comandos logo após construir / instanciar uma classe, você precisara trabalhar em cima do método initialize.
+
+O método initialize é chamado automaticamente sempre que você instancia uma classe.
+
+    after: {
+        initialize: function( args ) {
+            console.log( "a classe está pronta e disponível para uso" );
+            // ... download de dados, modificar coisas, etc ...
+        } 
+    }
+
+
 
 =head3 Diferença entre classes e roles
 
@@ -803,6 +838,61 @@ e ai eu uso essa bagaça assim :
   var meio_de_transporte_5 = new MeioDeTransporte( { veiculo : "NAO DEFINID...BLAA." } );
   console.log( meio_de_transporte_5.veiculo ); // vai retornar false, pois tem essa regra no Type: Transporte
 
+=head4 Multiplos coerce
+
+Para rodar vários coerce, tem que retornar null e depois retornar o item de entrada por exemplo:
+
+  Type( "TipoGabinete" , {
+    uses  : Joose.Type.Any,
+    where : function ( gabinete ) {
+      if ( gabinete && gabinete.meta && gabinete.meta._name == "Gabinete" ) return gabinete;//se já for tipo gabinete retorna ele
+      return false;
+    },
+    coerce : [
+      {
+        // Define HARD DISKS
+        from  : Joose.Type.Any,
+        via   : function ( gabinete ) {
+          if ( ! gabinete || ! gabinete.hdd ) return null;
+          if ( /array/ig.test( gabinete.hdd.constructor ) ) {
+            var hdds = [];
+            for ( var i in gabinete.hdd ) {
+              hdds.push( new Harddisk( gabinete.hdd[ i ] ) );
+            }
+            gabinete.hdd = hdds;
+          }
+          else if ( /object/ig.test( gabinete.hdd ) ) {
+            gabinete.hdd = [ new Harddisk( gabinete.hdd ) ];
+          }
+          return null; //Tem que retornar nullo para varios coerces
+        }
+      },
+      {
+        //Define Placa Mãe
+        from : Joose.Type.Any,
+         via : function ( gabinete ) {
+          if ( ! gabinete || !gabinete.placa_mae ) return null;
+          if ( /object/ig.test( gabinete.placa_mae.constructor ) ) {
+            if ( gabinete.placa_mae.modelo ) {
+              gabinete.placa_mae = new PlacaMae( gabinete.placa_mae );
+            }
+          }
+          else if ( /array/ig.test( gabinete.placa_mae.constructor ) ) {
+            console.warn( "Gabinete só aceita uma placa mãe mas foi passado array." );
+          }
+          return null; //Tem que retornar nullo para varios coerces
+        }
+      },
+      {
+        from  : Joose.Type.Any,
+        via   : function ( gabinete ) {
+          if ( gabinete ) return new Gabinete( gabinete );
+          return false;
+        }
+      }
+    ]
+  } )
+
 =head3 Namespaces
 
 namespaces ajudam a agrupar partes da aplicação, vou dar um exemplo: 
@@ -967,7 +1057,7 @@ Para ver mais exemplos, abra o arquivo ./calculadora.htm  e veja o arquivo: ./li
     },
     after: {
       setEngine: function () {
-        console.log( "Configurada classe com motor: " + this.engine.meta._name );
+        console.log( "Configurada classe com motor: " + this.engine.meta._name );//ou this.toString()
       }
     }
   } )
@@ -988,14 +1078,14 @@ Para ver mais exemplos, abra o arquivo ./calculadora.htm  e veja o arquivo: ./li
     },
     after: {
       setEngine: function () {
-        console.log( "Configurada classe com motor: " + this.engine.meta._name );
+        console.log( "Configurada classe com motor: " + this.engine.meta._name );//ou this.toString()
       }
     }
   } )
 
 e o uso:
 
-  var jeepao = new Jeep( { engine: new Estilo4x4() } );
+  var jeepao = new        Jeep( { engine: new Estilo4x4() } ); //instancia um jeep com motor Estilo4x4. Mas eu poderia trocar o motor ;)
   var diablo = new Lamborghini( { engine: new EstiloCorrida() } );
 
   jeepao.acelerar();
@@ -1105,7 +1195,403 @@ e depois eu crio uma classe Calculadora que extende minha calculadorabase e adic
   console.log( calc.elevar( 2, 3 ).resultado );
   console.log( calc.raiz_quadrada(   calc.elevar( 2, 3 ).resultado ).resultado  );
 
+=head3 Exemplo 3 - Computador
+
+Neste exemplo, vou instanciar uma classe "Computador" que recebe um json com especificações de computador.
+
+As especificações tem vários detalhes diferentes ao apresentado anteriormente, pois o atributo gabinete é um objeto que tem vários outros itens tipo hdd, placa mãe, etc. e eles tambem serão instanciados para suas respectivas classes.
+
+Primeiro vou definir os tipos, e classes. E na classe Computador vou indicar que cada atributo é do tipo respectivo, ex, teclado é do TipoTeclado, gabinete é do TipoGabinete, e dentro do gabinete, tem os atributos ex hdd que é do TipoHarddisk
+
+
+  Type( "TipoHarddisk", {
+    uses: Joose.Type.Any,
+    where: function ( harddisk ) {
+      if ( harddisk && harddisk.meta && harddisk.meta._name == "Harddisk" ) return harddisk;
+      return false;
+    },
+    coerce: [
+      {
+        from  : Joose.Type.Any,
+        via   : function ( harddisk ) {
+          if ( ! harddisk ) return null;
+          if ( /array/ig.test( harddisk.constructor ) ) {
+            var hdds = [];
+            for ( var i in harddisk ) {
+              hdds.push( new Harddisk( harddisk[ i ] ) );
+            }
+            return hdds;
+          }
+          else if ( /object/ig.test( harddisk ) ) {
+            return [ new Harddisk( harddisk ) ];
+          }
+        }
+      },
+    ]
+  } )  
+
+
+  Type( "TipoGabinete" , {
+    uses  : Joose.Type.Any,
+    where : function ( gabinete ) {
+      if ( gabinete && gabinete.meta && gabinete.meta._name == "Gabinete" ) return gabinete;//se já for tipo gabinete retorna ele
+      return false;
+    },
+    coerce : [
+      {
+        // Define HARD DISKS
+        from  : Joose.Type.Any,
+        via   : function ( gabinete ) {
+          if ( ! gabinete || ! gabinete.hdd ) return null;
+          if ( /array/ig.test( gabinete.hdd.constructor ) ) {
+            var hdds = [];
+            for ( var i in gabinete.hdd ) {
+              hdds.push( new Harddisk( gabinete.hdd[ i ] ) );
+            }
+            gabinete.hdd = hdds;
+          }
+          else if ( /object/ig.test( gabinete.hdd ) ) {
+            gabinete.hdd = [ new Harddisk( gabinete.hdd ) ];
+          }
+          return null; //Tem que retornar nullo para varios coerces
+        }
+      },
+      {
+        //Define Placa Mãe, deixei como exemplo para fazer vários coerce, veja que retorna null no final deste bloco
+        from : Joose.Type.Any,
+         via : function ( gabinete ) {
+          if ( ! gabinete || !gabinete.placa_mae ) return null;
+          if ( /object/ig.test( gabinete.placa_mae.constructor ) ) {
+            if ( gabinete.placa_mae.modelo ) {
+              gabinete.placa_mae = new PlacaMae( gabinete.placa_mae );
+            }
+          }
+          else if ( /array/ig.test( gabinete.placa_mae.constructor ) ) {
+            console.warn( "Gabinete só aceita uma placa mãe mas foi passado array." );
+          }
+          return null; //Tem que retornar nullo para varios coerces
+        }
+      },
+      {
+        from  : Joose.Type.Any,
+        via   : function ( gabinete ) {
+          if ( gabinete ) return new Gabinete( gabinete );
+          return false;
+        }
+      }
+    ]
+  } )
+
+  Type( "TipoTeclado" , {
+    uses : Joose.Type.Any,
+    where : function ( teclado ) {
+      if ( teclado && teclado.meta && teclado.meta._name == "Teclado" ) return teclado; //se ja for teclado retorna ele
+      return false;
+    },
+    coerce: [
+      {
+        //Define Teclado
+        from : Joose.Type.Any,
+         via : function ( teclado ) {
+          if ( ! teclado ) return null;
+          if ( /object/ig.test( teclado.constructor ) ) {
+            return new Teclado( teclado );
+          }
+          return null;
+        } 
+      },
+    ]
+  } )
+
+  Type( "TipoMonitor", {
+    uses: Joose.Type.Any,
+    where : function ( monitor ) {
+      if ( monitor && monitor.meta && monitor.meta._name == "Monitor" ) return monitor; //se ja for monitor retorna ele
+      return false;
+    },
+    coerce: [
+      {
+        from : Joose.Type.Any,
+        via : function ( monitor ) {
+          if ( ! monitor  ) return null;
+          if ( /object/ig.test( monitor.constructor ) ) {
+            return new Monitor( monitor );
+          }
+          else if ( /array/ig.test( monitor.constructor ) ) {
+            var monitores = [];
+            for ( var i in monitor ) {
+              monitores.push( new Monitor( monitor[ i ] ) );
+            }
+            return monitores;
+          }
+        }
+      }
+    ]
+  } )
+
+  Type( "TipoMouse", {
+    uses: Joose.Type.Any,
+    where: function ( mouse ) {
+      if ( mouse && mouse.meta && mouse.meta._name == "Mouse" ) return mouse;
+      return false;
+    } ,
+    coerce: [
+      {
+        from : Joose.Type.Any,
+        via : function ( mouse ) {
+          if ( ! mouse )  return null;
+          if ( /object/ig.test( mouse.constructor ) ) {
+            return new Mouse( mouse );
+          }
+        }
+      }
+    ]
+  } )
+
+  Class( "Mouse" , {
+    has : {
+        marca : { is : "rw" },
+      com_fio : { is : "rw" , init: false }
+    }
+  } )
+
+  Class( "Teclado", {
+    has : {
+        marca : { is : "rw" },
+      com_fio : { is : "rw" , init: false },
+    }
+  } )
+
+  Class( "Monitor" , {
+    has : {
+          marca : { is : "rw" },
+      polegadas : { is : "rw" }
+    }
+  } )
+
+  Class( "Harddisk", {
+    has: {
+        marca      : { is : "rw" },
+      tamanho      : { is : "rw" },
+      espaco_livre : { is : "rw" },
+      unidade      : { is : "rw" },
+    },
+    methods: {
+      formatar: function () {
+        var max_free_space = this.tamanho;
+        this.setEspaco_livre( max_free_space );
+      }
+    }
+  } )
+
+  Class( "PlacaMae" , {
+    has : {
+      modelo : {
+        is: "rw"
+      },
+      marca: {
+        is : "rw"
+      }
+    },
+    methods : {
+
+    },
+    after: {
+      setModelo: function ( modelo )  {
+        if ( /^asus/ig.test( modelo ) ) {
+          this.setMarca( "Asus" );
+        }
+      }
+    }
+  } )
+
+  Class( "Gabinete" , {
+    has: {
+      marca: {
+        is: "rw"
+      },
+      baias: {
+        is: "rw"
+      },
+      hdd: {
+        is: "rw"
+      },
+      placa_mae: {
+        is: "rw"
+      },
+    },
+    methods: {
+    },
+    after: {
+      setMarca: function () {
+        console.log( "Marca gabinete: " + this.marca );
+        console.log( "Marca gabinete: " + this.marca );
+        console.log( "Marca gabinete: " + this.marca );
+      } 
+    }
+  } )
+
+
+  Class( "Computador" , {
+    has : {
+      gabinete  : {
+            is : "rw",
+           isa : Joose.Type.TipoGabinete,
+        coerce : true,
+          lazy : true,
+      },
+      teclado   : {
+            is : "rw",
+           isa : Joose.Type.TipoTeclado,
+        coerce : true,
+      },
+      mouse     : {
+            is : "rw" ,
+           isa : Joose.Type.TipoMouse,
+        coerce : true,
+      },
+      monitor   : { 
+            is : "rw",
+           isa : Joose.Type.TipoMonitor,
+        coerce : true,
+      },
+      is_ligado : { is : "rw", init: false }
+    },
+    methods : {
+      ligar: function() {
+        console.log( "Ligando computador...." );
+        this.setIs_ligado( true );
+      },
+      desligar: function() {
+        if ( this.is_ligado ) 
+          console.log( "Desligando computador..." );
+        else 
+          console.log( "Computador já está desligado" );
+      }
+    },
+    after: {
+      initialize: function ( args ) {
+        console.log( "AFTER método initialize chamado " );
+        console.log( args );
+        console.log( "metodo initialize foi chamado com os argumentos acima ^^" );
+      }
+    }
+  } )
+
+
+
+
+  Class( "PessoaExemploAroundEOverride", {
+
+    // Métodos 
+
+    methods: {
+      dizer_frase: function ( frase ) {
+        return "dizendo: " + frase ;
+      },
+      perguntar_frase: function( pergunta ) {
+        return "perguntando: " + pergunta;
+      },
+    },
+
+    // Meus overrides
+
+    override: {
+      dizer_frase: function( frase ) {
+        return this.SUPER( false ) + " - OVERRIDE";
+      }
+    },
+
+    //Meus arounds
+
+    around: {
+      perguntar_frase: function ( original, pergunta ) { //original é a referencia ao método original
+        return ( pergunta && pergunta.length > 10 ) 
+          ? original( pergunta )        //chama o método original
+          : "pergunta muito curta";     //não chama método orignal e retorna este valor
+      }
+    },
+  } )
+
+e para instanciar: 
+
+  var computador_item = {
+    gabinete  : {
+      marca     : "corsair",
+      baias     : 5,
+      hdd       : [ 
+        { 
+          marca   : "western digital",
+          tamanho : "4",
+          unidade : "TB",
+          espaco_livre: 2.5,
+        },
+        {
+          marca   : "seagate" ,
+          tamanho : "2",
+          unidade : "TB", 
+          espaco_livre: 2,
+        },
+        //ou... mas pra que... os Types fazem isso pra vc =))
+        //new Harddisk( {
+        //  marca   : "seagate" ,
+        //  tamanho : "2",
+        //  unidade : "TB", 
+        //  espaco_livre: 2,
+        //} ),
+      ],
+      placa_mae: {
+        modelo: "ASUS9928GT"
+      }
+    },
+    mouse     : {
+        marca   : "razer",
+        com_fio : true,
+    },
+    teclado   : {
+        marca   : "razer",
+        com_fio : true,
+    },
+  // outro modo seria passar a instancia do teclado
+  //teclado   : new Teclado( {
+  //    marca   : "razer",
+  //    com_fio : true,
+  //}),
+    monitor   : [
+      {
+        marca     : "samsung",
+        polegadas : 15
+      },
+      {
+        marca     : "sony",
+        polegadas : 21
+      }
+    ],
+  }
+
+  var computer = new Computador( computador_item );
+  console.log( "Gabinete : " + computer.gabinete.toSource() );
+  console.log(  "Teclado : " + computer.teclado.toSource() );
+  console.log(    "Mouse : " + computer.mouse.toSource() );
+  console.log(  "Monitor : " + computer.monitor.toSource() );
+  computer.ligar();
+  console.log( computer.gabinete.hdd[0] );
+  console.log( computer.gabinete.hdd );
+  console.log( computer.gabinete.hdd );
+  var freespace = computer.gabinete.hdd[0].espaco_livre + computer.gabinete.hdd[0].unidade;
+  console.log( "Espaco livre em disco 1 (antes de formatar): " + freespace );
+  computer.gabinete.hdd[0].formatar();
+      freespace = computer.gabinete.hdd[0].espaco_livre + computer.gabinete.hdd[0].unidade;
+  console.log( "Espaco livre em disco 1 (após formatar): " + freespace );
+
+  console.log( "Espaco livre em disco 2: " + computer.gabinete.hdd[1].espaco_livre );
+
+
+  console.log( computer );
+
 =head4 Referências
+
+http://joose.github.io/Joose/doc/html/Joose.html
 
 http://code.google.com/p/joose-js/
 
