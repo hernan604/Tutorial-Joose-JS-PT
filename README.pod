@@ -35,7 +35,7 @@ ou concatenar o código do Joose antes de criar as classes.
 
 Joose não é um manipulador de DOM. Ex. ele não faz o que o jquery faz.
 
-Ele não trabalha no nível de markup. Mas pode ser usado em conjunto com jquery, dojo, angular, extjs, etc.
+Ele não trabalha no nível de markup. Mas pode ser usado em conjunto com jquery, dojo, angular, extjs, YUI, Prototype, Mootools and PureMVC.
 
 =head3 Seters, getters
 
