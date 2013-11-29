@@ -41,35 +41,36 @@ Ele não trabalha no nível de markup. Mas pode ser usado em conjunto com jquery
 
 Como é feito normalmente em js: 
 
-  pessoa = {
+  var Pessoa = function() {
     //nome
-    nome      : null,
-    setNome  : function ( val ) { 
-      this.nome = val;
-    },
-    getNome  : function () { 
+    this.nome     = null;
+    this.setNome  = function ( val ) { 
+        this.nome = val;
+    };
+    this.getNome  = function () { 
       return this.nome;
-    },
+    };
 
     //sobrenome
-    sobrenome      : null,
-    setSobrenome  : function ( val ) { 
-      this.sobrenome = val;
-    },
-    getSobrenome  : function () { 
+    this.sobrenome    = null;
+    this.setSobrenome = function ( val ) { 
+       this.sobrenome = val;
+    };
+    this.getSobrenome  = function () { 
       return this.sobrenome;
-    },
+    };
 
     //idade
-    idade    : null,
-    setIdade  : function ( val ) {
-      this.idade = val;
-    },
-    getIdade  : function () { 
+    this.idade     = null;
+    this.setIdade  = function ( val ) {
+        this.idade = val;
+    };
+    this.getIdade  = function () { 
       return this.idade;
-    },
-
+    };
   };
+
+  var pessoa = new Pessoa();
   pessoa.setNome("João");
   pessoa.setSobrenome("Silva");
   pessoa.setIdade(50);
